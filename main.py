@@ -94,9 +94,6 @@ async def handle_task(message:str, request_id, user_id:str, task_id: str, webhoo
         for item in search_results['items']:
             business_title = item.get('title')
             website_url = item.get('link') 
-            
-            # print(f"Title: {business_title}")
-            # print(f"Website: {website_url}\n")
 
             results[business_title] = website_url
 
@@ -108,7 +105,13 @@ async def handle_task(message:str, request_id, user_id:str, task_id: str, webhoo
   
   print("SEARCH RESULTS")
   pprint(results)
-  parts = schemas.DataPart(data=results)
+
+  markdown = "\n".join(
+    f"{i + 1}. [{title}]({url})"
+    for i, (title, url) in enumerate(results.items())
+  )
+
+  parts = schemas.TextPart(text=markdown)
 
   message = schemas.Message(role="agent", parts=[parts])
 
@@ -189,7 +192,7 @@ async def handle_request(request: Request, background_tasks: BackgroundTasks):
       detail="Message text cannot be empty."
     )
 
-  background_tasks.add_task(handle_task, text_message, request_id, user_id, new_task.id, webhook_url, org_id, api_key)
+  background_tasks.add_task(handle_task, text_message, request_id, user_id, new_task.id, webhook_url, api_key)
 
   response = schemas.JSONRPCResponse(
       id=request_id,
