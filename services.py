@@ -56,18 +56,18 @@ class AIService:
                     ],
                     "stream": False
                 }
-                print("TELEX AI URL", TELEX_AI_URL)
 
                 response = await client.post(
                     TELEX_AI_URL, 
                     headers=request_headers,
                     json=request_body,
-                    timeout=35.0
+                    timeout=45.0
                 )
 
                 response.raise_for_status()
                 # Extract the JSON string from the AI's response
-                res = response.json().get("data", {}).get("Messages", None)
+                pprint(response.json())
+                res = response.json().get("data", {}).get("choices", None)[0].get("message", None)
                 reply = res.get("content", "not available")
                 print("REPLY:")
                 pprint(reply)
@@ -78,9 +78,7 @@ class AIService:
                 return fixed_json
 
         except (KeyError, IndexError, json.JSONDecodeError, Exception) as e:
-            print(f"Error parsing AI response: {e}") 
-            print(f"Raw AI response was: {reply if reply is not None else "N/A"}")
-            raise HTTPException(status_code=500, detail="Could not understand the AI model's response.")
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=e)
         
 
 
