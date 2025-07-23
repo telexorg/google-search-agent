@@ -56,6 +56,7 @@ class AIService:
                     ],
                     "stream": False
                 }
+                print("TELEX AI URL", TELEX_AI_URL)
 
                 response = await client.post(
                     TELEX_AI_URL, 
